@@ -1,17 +1,42 @@
 import random
 import time
 
-theBoard = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 mode = 0
-player = 1
-mark = ''
 player1 = ''
-player1mark = ''
 player2 = ''
-player2mark = ''
 
 
-# Get game play mode single player or two player
+# draw the game board
+def drawBoard(board):
+    print(" {} | {} | {} ".format(board[7], board[8], board[9]))
+    print("-----------")
+    print(" {} | {} | {} ".format(board[4], board[5], board[6]))
+    print("-----------")
+    print(" {} | {} | {} ".format(board[1], board[2], board[3]))
+
+
+# check game is won or not
+def checkWin(board):
+    if (board[1] == board[2] == board[3] != ' ' or  # row
+            board[4] == board[6] == board[5] != ' ' or
+            board[7] == board[8] == board[9] != ' ' or
+            board[1] == board[4] == board[7] != ' ' or  # column
+            board[2] == board[5] == board[8] != ' ' or
+            board[3] == board[6] == board[9] != ' ' or  # diagonal
+            board[1] == board[5] == board[9] != ' ' or
+            board[3] == board[5] == board[7] != ' '):
+        return 'win'
+
+    # game draw condition if board is full
+    elif board.count(' ') == 1:
+        return 'draw'
+
+    # run game
+    else:
+        return 'running'
+
+
+# game play in single player or two player
 def playMode():
     global mode
     while True:
@@ -25,103 +50,58 @@ def playMode():
             break
 
 
-# Function for get players names, who goes first and player mark
+# get players name
 def getPlayers():
-    global player, player1, player1mark, player2, player2mark
-
-    playMode()
-    # get player names
-    if mode == 2 and player1 == '':
-        player1 = input("Enter player 1 name ").capitalize()
-        player2 = input("Enter player 2 name ").capitalize()
-    elif mode == 1 and player1 == '':
-        player1 = input("Enter player name ").capitalize()
+    global player1, player2
+    if mode == 1:
+        player1 = input('Enter your name ').capitalize()
         player2 = 'Computer'
-
-    # who goes first
-    player = random.choice([1, 0])  # 1 = player1 and  0 = player2 or computer
-    if player == 1:
-        print("{} will go first".format(player1))
-        player1mark = ''
-        while player1mark not in ['X', 'O']:
-            player1mark = input("{}, choose your mark X or O ".format(player1)).upper()
-
-        if player1mark == 'X':
-            player2mark = 'O'
-        else:
-            player2mark = 'X'
-
-    elif player == 0:
-        print("{} will go first.".format(player2))
-        if mode == 2:
-            player2mark = input("{}, choose your mark X or O ".format(player2)).upper()
-        elif mode == 1:
-            player2mark = random.choice(['X', 'O'])
-
-        if player2mark == 'X':
-            player1mark = 'O'
-        else:
-            player1mark = 'X'
-
-        if mode == 1:
-            print("Computer selected {} mark and your mark is {}".format(player2mark, player1mark))
-            time.sleep(3)
-
-
-# Print the game board
-def printBoard(board):
-    print(" {} | {} | {} ".format(board[7], board[8], board[9]))
-    print("-----------")
-    print(" {} | {} | {} ".format(board[4], board[5], board[6]))
-    print("-----------")
-    print(" {} | {} | {} ".format(board[1], board[2], board[3]))
-
-
-# check the position is free or not to mark the position
-def checkMove(m):
-    return theBoard[m] == ' '
-
-
-# check game is won or not
-def checkWin(board):
-    if board[1] == board[2] == board[3] != ' ':
-        return 'win'
-    elif board[4] == board[6] == board[5] != ' ':
-        return 'win'
-    elif board[7] == board[8] == board[9] != ' ':
-        return 'win'
-
-    # vertical winning condition
-    elif board[1] == board[4] == board[7] != ' ':
-        return 'win'
-    elif board[2] == board[5] == board[8] != ' ':
-        return 'win'
-    elif board[3] == board[6] == board[9] != ' ':
-        return 'win'
-
-    # diagonal winning condition
-    elif board[1] == board[5] == board[9] != ' ':
-        return 'win'
-    elif board[3] == board[5] == board[7] != ' ':
-        return 'win'
-
-    # game draw condition if board is full
-    elif board.count(' ') == 1:
-        return 'draw'
-
-    # run game
     else:
-        return 'running'
+        player1 = input('Player 1, enter your name ').capitalize()
+        player2 = input('Player 2, enter your name ').capitalize()
 
 
-# Function for get position input from player to mark the position
-def playerMove(move):
+# get player letters and who goes first in the game
+def getLetter():
+    player = random.choice([1, 2])
+    letter = ''
+    if player == 1:
+        print(player1 + ", you will go first.")
+    else:
+        print(player2 + ", you will go first.")
+        if mode == 1:
+            letter = random.choice(['X', 'O'])
+            print(player2 + " selected letter " + letter)
+
+    while letter not in ['X', 'O']:
+        print("Do you want to be X or O? ")
+        letter = input().upper()
+
+    if player == 1:
+        if letter == 'X':
+            return [player1, 'X', 'O']
+        else:
+            return [player1, 'O', 'X']
+    else:
+        if letter == 'X':
+            return [player2, 'O', 'X']
+        else:
+            return [player2, 'X', 'O']
+
+
+# check move position is free in board
+def checkMove(board, move):
+    return board[move] == ' '
+
+
+# get player move position
+def playerMove(board, move):
     while True:
         try:
             while move not in range(1, 10):
-                move = int(input("Enter position in between 1-9 where you want to mark {} : ".format(mark)))
+                move = int(input("Enter position in between 1-9 where you want to mark : "))
                 if move < 9:
-                    if not checkMove(move):
+                    if not checkMove(board, move):
                         print("Position {} already occupied, choose other free position.".format(move))
                         continue
         except ValueError:
@@ -132,14 +112,14 @@ def playerMove(move):
     return move
 
 
-# Get computer move in single player
-def aiMove(move):
-    turn = 11 - theBoard.count(' ')
+# get ai move in single player
+def aiMove(board, player1letter, player2letter):
+    turn = 11 - board.count(' ')
 
     # create possible moves list
     possible_moves = []
     for i in range(1, 10):
-        if checkMove(i):
+        if checkMove(board, i):
             possible_moves.append(i)
 
     # possible corner moves list
@@ -155,9 +135,9 @@ def aiMove(move):
             edges.append(i)
 
     # check the game win in next move take that place
-    for let in [player2mark, player1mark]:
+    for let in [player2letter, player1letter]:
         for i in possible_moves:
-            temp_board = theBoard.copy()
+            temp_board = board.copy()
             temp_board[i] = let
             if checkWin(temp_board) == "win":
                 move = i
@@ -172,7 +152,7 @@ def aiMove(move):
         # else player taken center position take any corner
 
         # pm : player first marked position in theBoard
-        pm = theBoard.index(player1mark)
+        pm = board.index(player1letter)
 
         if pm in [1, 3, 7, 9]:
             return 5
@@ -191,16 +171,16 @@ def aiMove(move):
     if turn == 3:
         # take diagonal opposite position to first position
 
-        if theBoard[1] == player2mark:
+        if board[1] == player2letter:
             if 9 in possible_moves:
                 return 9
-        elif theBoard[3] == player2mark:
+        elif board[3] == player2letter:
             if 7 in possible_moves:
                 return 7
-        elif theBoard[7] == player2mark:
+        elif board[7] == player2letter:
             if 3 in possible_moves:
                 return 3
-        elif theBoard[9] == player2mark:
+        elif board[9] == player2letter:
             if 1 in possible_moves:
                 return 1
 
@@ -210,7 +190,7 @@ def aiMove(move):
 
         if 5 in possible_moves:
             return 5
-        elif theBoard[5] == player2mark:
+        elif board[5] == player2letter:
             return random.choice(edges)
 
     # Take any one corner if available
@@ -222,73 +202,84 @@ def aiMove(move):
         return random.choice(edges)
 
 
-# Print the game winner
-def getWinner(game):
-    time.sleep(1)
+# mark the player chosen position
+def makeMove(board, letter, move):
+    if checkMove(board, move):
+        board[move] = letter
+
+
+# get who is winner in the game
+def getWinner(board, game, player):
     if game == 'draw':
-        print("Game Draw")
+        drawBoard(board)
+        print("Draw game")
     elif game == 'win':
-        winner = player - 1
-        if winner % 2 != 0:
-            print('Congratulations, {} won the game'.format(player1))
-        elif winner % 2 == 0:
-            print('Congratulations, {} won the game'.format(player2))
+        drawBoard(board)
+        if player == player2:
+            print("Congratulations, " + player1 + " won the game")
+        elif player == player1:
+            print("Congratulations, " + player2 + " won the game")
 
 
-# Main game function
-def runGame():
-    global player, mark
-
-    getPlayers()
-    while checkWin(theBoard) == "running":
-        printBoard(theBoard)
-        move = 0
-        if player % 2 != 0:
-            print("{}'s move - {}".format(player1, player1mark))
-            mark = player1mark
-            move = playerMove(move)
-        elif player % 2 == 0:
-            print("{}'s move - {}".format(player2, player2mark))
-            mark = player2mark
-            if mode == 1:
-                move = aiMove(move)
-                print("Computer placed {} in position {}.".format(player2mark, move))
-                time.sleep(2)
-            elif mode == 2:
-                move = playerMove(move)
-
-        if checkMove(move):
-            theBoard[move] = mark
-            player += 1
-            checkWin(theBoard)
-
-    printBoard(theBoard)
-    getWinner(checkWin(theBoard))
-
-
-# ask for play again
+# get input for play again
 def playAgain():
-    pa = ""
+    pa = ''
     while pa not in ['yes', 'no']:
-        pa = input("Are you play game again? (yes / no) ").lower()
-    return pa
+        pa = input("Are you play game again? (yes/no) ")
+
+    if pa == 'yes':
+        runGame()
+    elif pa == 'no':
+        time.sleep(4)
+        exit()
+
+
+# main function of the game
+def runGame():
+    player, player1letter, player2letter = getLetter()
+    board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+    while checkWin(board) == 'running':
+        move = 0
+        if player == player1:
+            drawBoard(board)
+            print(player1 + ', your turn - ' + player1letter)
+            move = playerMove(board, move)
+            letter = player1letter
+
+            if checkMove(board, move):
+                player = player2
+                makeMove(board, letter, move)
+
+        elif player == player2:
+            drawBoard(board)
+            print(player2 + ', your turn - ' + player2letter)
+
+            if mode == 1:
+                move = aiMove(board, player1letter, player2letter)
+                print("Computer placed {} in position {}.".format(player2letter, move))
+            else:
+                move = playerMove(board, move)
+            letter = player2letter
+
+            if checkMove(board, move):
+                player = player1
+                makeMove(board, letter, move)
+
+            makeMove(board, letter, move)
+        checkWin(board)
+
+    getWinner(board, checkWin(board), player)
+    
+    if checkWin(board) != 'running':
+        playAgain()
 
 
 def main():
-    global theBoard, player, player1mark, player2mark
+    print("Welcome to Tic Tac Toe game")
+    playMode()
+    getPlayers()
     runGame()
-    while checkWin(theBoard) != 'running':
-        pa = playAgain()
-        if pa == 'yes':
-            theBoard = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-            player = 1
-            player1mark = ''
-            player2mark = ''
-            runGame()
-        elif pa == 'no':
-            time.sleep(2)
-            exit()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
